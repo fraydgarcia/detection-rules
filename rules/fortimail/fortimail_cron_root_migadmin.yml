@@ -1,0 +1,30 @@
+title: Ejecución por cron como root con referencia a /migadmin en FortiMail
+id: 5c370a2c-6d0f-4b82-b43e-1ffadc9a9fb6
+status: experimental
+description: |
+  Detecta una tarea de cron ejecutada como root que referencia /migadmin, indicador
+  publicado por Fortinet para la post-explotación de CVE-2026-104286.
+references:
+  - https://www.fortiguard.com/psirt/FG-IR-26-175
+author: Fray García
+date: 2026-10-06
+tags:
+  - attack.persistence
+  - attack.execution
+  - attack.t1053.003
+  - cve.2026-104286
+logsource:
+  product: fortimail
+  service: event
+detection:
+  selection:
+    type: 'event'
+    subtype: 'system'
+    ui: 'cron'
+    msg|contains|all:
+      - '(root) CMD'
+      - '/migadmin'
+  condition: selection
+falsepositives:
+  - No se conocen
+level: critical

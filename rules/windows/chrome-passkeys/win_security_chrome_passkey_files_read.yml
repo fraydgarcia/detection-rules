@@ -1,0 +1,39 @@
+title: Lectura del estado de passkeys de Chrome por un proceso ajeno al navegador
+id: 95a71ddb-fca0-4d27-9b20-c3741d84ed5b
+status: experimental
+description: |
+  Detecta accesos de lectura al estado del enclave de passkeys y a la base de datos
+  de sincronización de Chrome desde procesos que no son el propio navegador. Es el
+  primer movimiento de los ataques Pass-ta-key descritos por Unit 42.
+  REQUISITO: auditoría de acceso a objetos activada y SACL sobre las rutas.
+references:
+  - https://unit42.paloaltonetworks.com/passwordless-authentication-security-risks/
+  - https://attack.mitre.org/techniques/T1555/003/
+author: Fray García
+date: 2026/08/08
+tags:
+  - attack.credential-access
+  - attack.t1555.003
+logsource:
+  product: windows
+  service: security
+detection:
+  selection_lectura:
+    EventID: 4663
+    AccessMask: '0x1'
+  objetivo_enclave:
+    ObjectName|endswith: '\passkey_enclave_state'
+  objetivo_sync:
+    ObjectName|contains|all:
+      - '\Google\Chrome\User Data\'
+      - '\Sync Data\LevelDB'
+  filter_navegador:
+    ProcessName|endswith:
+      - '\chrome.exe'
+      - '\msedge.exe'
+  condition: selection_lectura and 1 of objetivo_* and not filter_navegador
+falsepositives:
+  - Herramientas de copia de seguridad y sincronización de perfiles
+  - Antivirus y agentes EDR que escanean el perfil del navegador
+  - Utilidades de migración de perfiles en despliegues corporativos
+level: high

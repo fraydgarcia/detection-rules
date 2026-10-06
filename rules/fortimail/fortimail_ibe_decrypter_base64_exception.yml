@@ -1,0 +1,28 @@
+title: Excepción de decodificación Base64 en el descifrador IBE de FortiMail
+id: 3dcd19f0-b8da-48ec-9031-fab63d674842
+status: experimental
+description: |
+  Detecta la excepción BufferException del componente DecrypterMediaIn del IBE con
+  un error de Base64 en la posición 0, publicada por Fortinet como rastro de los
+  intentos de explotación de CVE-2026-104286.
+references:
+  - https://www.fortiguard.com/psirt/FG-IR-26-175
+author: Fray García
+date: 2026-10-06
+tags:
+  - attack.initial-access
+  - attack.t1190
+  - cve.2026-104286
+logsource:
+  product: fortimail
+  service: encryption
+detection:
+  selection:
+    msg|contains|all:
+      - 'IBE::DecrypterMediaIn'
+      - 'BufferException'
+      - 'Invalid Base64 Encoding at pos 0'
+  condition: selection
+falsepositives:
+  - Peticiones IBE malformadas por clientes o enlaces corruptos
+level: medium

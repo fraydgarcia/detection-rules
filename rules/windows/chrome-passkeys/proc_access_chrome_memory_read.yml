@@ -1,0 +1,42 @@
+title: Acceso de lectura a la memoria de Chrome desde un proceso no confiable
+id: d6e6222a-561b-4787-bd6c-ebf501d1733e
+status: experimental
+description: |
+  Detecta procesos que abren chrome.exe solicitando PROCESS_VM_READ. Es la vía por
+  la que el ataque Golden Pass-ta-key extrae el Security Domain Secret de 32 bytes
+  que descifra todas las passkeys sincronizadas de la cuenta. La misma señal cubre
+  el robo clásico de cookies y credenciales del navegador.
+references:
+  - https://unit42.paloaltonetworks.com/passwordless-authentication-security-risks/
+  - https://attack.mitre.org/techniques/T1555/003/
+author: Fray García
+date: 2026/08/08
+tags:
+  - attack.credential-access
+  - attack.t1555.003
+logsource:
+  category: process_access
+  product: windows
+detection:
+  selection:
+    TargetImage|endswith: '\chrome.exe'
+    GrantedAccess:
+      - '0x1410'
+      - '0x1010'
+      - '0x1418'
+      - '0x143a'
+      - '0x1F3FFF'
+      - '0x1FFFFF'
+  filter_propio:
+    SourceImage|endswith: '\chrome.exe'
+  filter_seguridad:
+    SourceImage|endswith:
+      - '\MsMpEng.exe'
+      - '\MsSense.exe'
+      - '\SenseIR.exe'
+  condition: selection and not 1 of filter_*
+falsepositives:
+  - Agentes EDR y antivirus no incluidos en el filtro
+  - Herramientas de depuración y perfilado
+  - Software de accesibilidad y de automatización de escritorio
+level: medium

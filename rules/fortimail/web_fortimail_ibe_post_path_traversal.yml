@@ -1,0 +1,35 @@
+title: Petición POST con path traversal hacia el IBE de FortiMail
+id: 00e7f635-408e-4090-bea5-6850aab7d738
+status: experimental
+description: |
+  Detecta peticiones POST hacia rutas /ibe que contienen secuencias de path traversal
+  o un NULL byte codificado, el patrón de explotación de CVE-2026-104286. Pensada para
+  logs de un proxy inverso o WAF situado delante del FortiMail.
+references:
+  - https://www.fortiguard.com/psirt/FG-IR-26-175
+author: Fray García
+date: 2026-10-06
+tags:
+  - attack.initial-access
+  - attack.t1190
+  - cve.2026-104286
+logsource:
+  category: webserver
+detection:
+  selection_ibe:
+    cs-method: 'POST'
+    cs-uri-stem|contains: '/ibe'
+  selection_traversal:
+    - cs-uri-stem|contains:
+        - '../'
+        - '..%2f'
+        - '%2e%2e'
+    - cs-uri-query|contains:
+        - '../'
+        - '..%2f'
+        - '%2e%2e'
+        - '%00'
+  condition: all of selection_*
+falsepositives:
+  - Escáneres de vulnerabilidades autorizados contra el portal IBE
+level: high

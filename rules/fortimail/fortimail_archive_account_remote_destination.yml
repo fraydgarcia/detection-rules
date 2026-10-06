@@ -1,0 +1,31 @@
+title: Alta de cuenta de archivado con destino remoto en FortiMail
+id: 306995a9-7279-4b16-ab5c-7dc8cc4dc2ab
+status: experimental
+description: |
+  Detecta la creación de una cuenta de archivado de FortiMail que envía el correo a
+  un servidor remoto. En la explotación de CVE-2026-104286 el atacante configura el
+  archivado hacia una IP propia para llevarse el correo con una función del producto.
+references:
+  - https://www.fortiguard.com/psirt/FG-IR-26-175
+author: Fray García
+date: 2026-10-06
+tags:
+  - attack.collection
+  - attack.t1114
+  - attack.exfiltration
+  - attack.t1020
+  - cve.2026-104286
+logsource:
+  product: fortimail
+  service: event
+detection:
+  selection:
+    type: 'kevent'
+    subtype: 'config'
+    msg|contains|all:
+      - "to 'archive account'"
+      - 'destination[remote]'
+  condition: selection
+falsepositives:
+  - Alta legítima de archivado remoto, que debería coincidir con un cambio aprobado
+level: high

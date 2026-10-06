@@ -1,0 +1,30 @@
+title: Borrado del estado del enclave de passkeys de Chrome
+id: 54e63fff-016e-4e58-b0cd-f35593d1f3f4
+status: experimental
+description: |
+  Detecta el borrado del fichero passkey_enclave_state, que fuerza a Chrome a
+  re-registrar el dispositivo. Durante ese re-onboarding existe la ventana
+  uv_key_pending que el ataque Silver Pass-ta-key usa para registrar una clave
+  de verificación de usuario controlada por el atacante.
+references:
+  - https://unit42.paloaltonetworks.com/passwordless-authentication-security-risks/
+  - https://attack.mitre.org/techniques/T1555/003/
+author: Fray García
+date: 2026/08/08
+tags:
+  - attack.credential-access
+  - attack.t1555.003
+logsource:
+  category: file_delete
+  product: windows
+detection:
+  selection:
+    TargetFilename|endswith: '\passkey_enclave_state'
+  filter_navegador:
+    Image|endswith: '\chrome.exe'
+  condition: selection and not filter_navegador
+falsepositives:
+  - Reinstalación o reparación de Chrome
+  - Limpiadores de perfil ejecutados por el usuario
+  - Restauración de imagen del equipo
+level: high
